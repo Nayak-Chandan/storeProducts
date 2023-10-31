@@ -3,7 +3,160 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>selling List</title>
   </head>
-  <body></body>
+  <body>
+    <form onsubmit="saveToCrudCrud(event)">
+      <label>Item Name</label>
+      <input type="text" name="items" id="storeItems" />
+      <label>Description</label>
+      <input type="text" name="aboutItems" id="descriptionItems" />
+      <label>Price</label>
+      <input type="text" name="amount" id="itemsAmount" />
+      <label>Quantity</label>
+      <input type="text" name="quantity" id="itemsQuantity" />
+      <button>Add items</button>
+    </form>
+    <ul id="lists"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+    <script>
+      async function saveToCrudCrud(event) {
+        event.preventDefault();
+        let productName = event.target.items.value;
+        //console.log(productName);
+        let productDescription = event.target.aboutItems.value;
+        //console.log(productDescription);
+        let productPrice = event.target.amount.value;
+        //console.log(productPrice);
+        let productQuantity = event.target.quantity.value;
+        //console.log(productQuantity);
+        let productDetails = {
+          productName,
+          productDescription,
+          productPrice,
+          productQuantity,
+        };
+        const postOnCrudCrud = await axios.post(
+          "https://crudcrud.com/api/b46c15113fea49599c3174bc1f9ecf89/sellingProduct",
+          productDetails
+        );
+        console.log(postOnCrudCrud);
+        showOnUserScreen(postOnCrudCrud.data);
+        const inputItemname = document.getElementById("storeItems");
+        const inputDescription = document.getElementById("descriptionItems");
+        const inputPrice = document.getElementById("itemsAmount");
+        const inputQuantity = document.getElementById("itemsQuantity");
+        inputItemname.value = "";
+        inputDescription.value = "";
+        inputPrice.value = "";
+        inputQuantity.value = "";
+      }
+      window.addEventListener("DOMContentLoaded", async () => {
+        const data = await axios.get(
+          "https://crudcrud.com/api/b46c15113fea49599c3174bc1f9ecf89/sellingProduct"
+        );
+        for (let i = 0; i < data.data.length; i++) {
+          showOnUserScreen(data.data[i]);
+        }
+      });
+
+      function showOnUserScreen(productData) {
+        let parentElem = document.getElementById("lists");
+        let childElem = document.createElement("li");
+        let spanElem = document.createElement("span");
+        spanElem.id = productData._id;
+        console.log(spanElem.id);
+        spanElem.innerText = productData.productQuantity;
+        //childElem.id = productData._id;
+        childElem.appendChild(
+          document.createTextNode(
+            `${productData.productName},${productData.productDescription},${productData.productPrice}, `
+          )
+        );
+        childElem.appendChild(spanElem);
+        console.log("childElem", childElem);
+        //parentElem.appendChild(childElem);
+        let buyOneBtn = document.createElement("button");
+        buyOneBtn.innerText = "BuyOne";
+        let buyTwoBtn = document.createElement("button");
+        buyTwoBtn.innerText = "BuyTwo";
+        let buyThreeBtn = document.createElement("button");
+        buyThreeBtn.innerText = "BuyThree";
+        childElem.appendChild(buyOneBtn);
+        childElem.appendChild(buyTwoBtn);
+        childElem.appendChild(buyThreeBtn);
+        parentElem.appendChild(childElem);
+        buyOneBtn.onclick = () => {
+          // let productAmount = document.getElementById(`${productData._id}`);
+          // console.log("productAmount", productAmount);
+          // //console.log(productData.productQuantity);
+          // //let x = (productData.productQuantity -= 1);
+          // //console.log("x", x);
+          // spanElem.innerText -= 1;
+          parentElem.removeChild(childElem);
+          buyone(productData);
+        };
+        buyTwoBtn.onclick = () => {
+          parentElem.removeChild(childElem);
+          buyTwo(productData);
+        };
+        buyThreeBtn.onclick = () => {
+          parentElem.removeChild(childElem);
+          buyThree(productData);
+        };
+      }
+      async function buyone(data) {
+        const modifydata = {
+          ...data,
+          _id: undefined,
+          productQuantity: Number(data.productQuantity) - 1,
+        };
+        try {
+          const editProduct = await axios.put(
+            `https://crudcrud.com/api/b46c15113fea49599c3174bc1f9ecf89/sellingProduct/${data._id}`,
+            modifydata
+          );
+          const editingData = { ...modifydata, _id: data._id };
+          console.log("editingdata", editingData);
+          showOnUserScreen(editingData);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      async function buyTwo(data) {
+        try {
+          const modifingdata = {
+            ...data,
+            _id: undefined,
+            productQuantity: Number(data.productQuantity) - 2,
+          };
+          const editingProduct = await axios.put(
+            `https://crudcrud.com/api/b46c15113fea49599c3174bc1f9ecf89/sellingProduct/${data._id}`,
+            modifingdata
+          );
+          const editingData = { ...modifingdata, _id: data._id };
+          showOnUserScreen(editingData);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      async function buyThree(data) {
+        try {
+          const modifydata = {
+            ...data,
+            _id: undefined,
+            productQuantity: Number(data.productQuantity) - 3,
+          };
+          const editingProduct = await axios.put(
+            `https://crudcrud.com/api/b46c15113fea49599c3174bc1f9ecf89/sellingProduct/${data._id}`,
+            modifydata
+          );
+          const editingData = { ...modifydata, _id: data._id };
+          showOnUserScreen(editingData);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    </script>
+  </body>
 </html>
